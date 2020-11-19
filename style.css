@@ -23,6 +23,12 @@ html {
       margin: 15px;
   }
 
+  h2 {
+    width: 100px;
+    display: flex;
+    flex-direction: row;
+  }
+
   .level {
     width: 100%;
     height: 60px;
@@ -31,9 +37,21 @@ html {
     align-items: center;
     justify-content: center;
   }
-
-  .level span {
+  .levelValue{
+      flex-basis: 50px;
       color: yellow;
+  }
+
+  .levelValue.easy::before {
+    content: 'easy';
+  }
+
+  .levelValue.middle::before {
+    content: 'middle';
+    
+  }
+  .levelValue.hard::after {
+      content: 'hard';
   }
 
   button {
@@ -41,6 +59,10 @@ html {
       font-size: 20px;
       font-weight: bold;
       margin-right: 100px;
+  }
+
+  button:hover {
+      cursor: pointer;
   }
 
   .score {
@@ -83,6 +105,10 @@ html {
       width: 100%;
       height: 100%;
       transition: all 0.4s;
+  }
+
+  .mole:hover {
+      cursor: pointer;
   }
 
   .hole.up .mole {

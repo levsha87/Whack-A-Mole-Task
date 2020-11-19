@@ -2,6 +2,7 @@ const holes = document.querySelectorAll('.hole');
 const scoreBoard = document.querySelector('.score');
 const moles = document.querySelectorAll('.mole');
 const buttonStartGame = document.querySelector('#startGame');
+const gameLevel = document.querySelector('.levelValue');
 console.log(buttonStartGame);
 let lasthole;
 let timeUp = false;
@@ -22,11 +23,9 @@ function randomHole(holes){
 }
 
 function appearHidMole () {
-    console.log('went');
     const time = randomTime(200, 2000);
     const hole = randomHole(holes);
     hole.classList.add('up');
-    console.log(hole.classList);
     setTimeout(() => {
         hole.classList.remove('up');
         if(!timeUp) appearHidMole();
@@ -34,12 +33,25 @@ function appearHidMole () {
 }
 
 function startGame(){
-    console.log('пришел');
     scoreBoard.textContent = 0;
     timeUp = false;
     score = 0;
     appearHidMole();
-    setTimeout(() => timeUp = true, 10000);
+    setTimeout(() => {
+        timeUp = true;
+        finishGame();
+    }, 10000);
+}
+
+function startLevelMiddle(){
+    let currentLevel = localStorage.getItem('level');
+    let currentScore = localStorage.getItem('score');
+}
+
+
+function finishGame(){
+    localStorage.setItem('level', `${gameLevel.textContent}`);
+    localStorage.setItem('score', `${score}`);
 }
 
 function bonk (e){
