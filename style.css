@@ -26,6 +26,9 @@ html {
       position: relative;
       top: -20px;
       left: calc(50% - 25px);
+      font-family: 'Amatic SC', cursive;
+      font-size: 20px;
+      font-weight: bold;
   }
 
   .score {
@@ -70,7 +73,7 @@ html {
       transition: all 0.4s;
   }
 
-  .hole .up .mole {
+  .hole.up .mole {
       top: 0;
   }
 
