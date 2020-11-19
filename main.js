@@ -50,7 +50,7 @@ function startLevelMiddle(){
 
 
 function finishGame(){
-    localStorage.setItem('level', `${gameLevel.textContent}`);
+    localStorage.setItem('level', `${gameLevel.classList[1]}`);
     localStorage.setItem('score', `${score}`);
 }
 
