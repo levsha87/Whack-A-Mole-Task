@@ -24,7 +24,7 @@ window.addEventListener('load', setInfoLevelScore(gameLevel, state.score));
 buttonStartGame.addEventListener('click', () => startGame(gameLevel, state, holes));
 game.addEventListener('click', (e) => {
   if (e.target !== e.target.closest('.mole')) return;
-  hit(e, scoreBoard, mole, state.score);
+  hit(e, scoreBoard, state);
 });
 
 
@@ -57,14 +57,14 @@ function randomHole(holes) {
 }
 
 function appearHidMole(state, holes) {
-  const time = randomTime(minTime, maxTime);
+  const time = randomTime(state.minTime, state.maxTime);
   const hole = randomHole(holes, state.lasthole);
 
   hole.classList.add('up');
 
   setTimeout(() => {
     hole.classList.remove('up');
-    if (!timeUp) appearHidMole(state, holes);
+    if (!state.timeUp) appearHidMole(state, holes);
   }, time);
 }
 
@@ -73,16 +73,16 @@ function startGame(gameLevel, state, holes) {
   getInfoLevelScore(gameLevel, state.score);
   appearHidMole(state, holes);
 
-  if (score <= 7) {
-    startLevelEasy();
+  if (state.score <= 7) {
+    startLevelEasy(gameLevel, state);
   }
 
-  if (currentLevel === 'easy' && score > 7) {
-    startLevelMiddle();
+  if (state.currentLevel === 'easy' && state.score > 7) {
+    startLevelMiddle(gameLevel, state);
   }
 
-  if (currentLevel === 'middle' && score > 15) {
-    startLevelHard();
+  if (state.currentLevel === 'middle' && state.score > 15) {
+    startLevelHard(gameLevel, state);
   }
 }
 
@@ -101,7 +101,7 @@ function toggleHardLevel(gameLevel, state) {
 }
 
 function startLevelEasy(state, gameLevel, scoreBoard) {
-  state.minTime += 200;
+  state.minTime = state.minTime + 200;
   state.maxTime -= 200;
 
   gameLevel.classList.remove('hard');
@@ -115,7 +115,7 @@ function startLevelEasy(state, gameLevel, scoreBoard) {
   appearHidMole(state);
 
   setTimeout(() => {
-    timeUp = true;
+    state.timeUp = true;
     setInfoLevelScore(gameLevel, state.score);
     showResult();
     toggleMiddleLevel();
@@ -132,7 +132,7 @@ function startLevelMiddle(state, gameLevel, scoreBoard) {
   appearHidMole(minTime, maxTime);
 
   setTimeout(() => {
-    timeUp = true;
+    state.timeUp = true;
     setInfoLevelScore(gameLevel, state.score);
     showResult();
     toggleHardLevel();
@@ -143,20 +143,19 @@ function startLevelHard(state, gameLevel, scoreBoard) {
   state.maxTime -= 1000;
   gameLevel.classList.add('hard');
   scoreBoard.textContent = state.currentScore;
-  timeUp = false;
+  state.timeUp = false;
   state.score = state.currentScore;
 
   appearHidMole(state);
 
   setTimeout(() => {
-    timeUp = true;
+    state.timeUp = true;
     setInfoLevelScore(gameLevel, state.score);
     showResult();
   }, 20000);
 }
 
-function hit(e, scoreBoard, mole, state) {
-  console.log(mole, e.target.parentNode.classList);
+function hit(e, scoreBoard, state) {
   if (!e.isTrusted) return;
   state.score++;
   e.target.parentNode.classList.remove('up');
