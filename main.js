@@ -1,15 +1,44 @@
-const holes = document.querySelectorAll('.hole');
-const scoreBoard = document.querySelector('.score');
-const moles = document.querySelectorAll('.mole');
-const buttonStartGame = document.querySelector('#startGame');
-const gameLevel = document.querySelector('.levelValue');
-let currentLevel, currentScore;
-let minTime = 200,
-  maxTime = 2000;
 
-let lasthole;
-let timeUp = false;
-let score = 0;
+
+function initWhackMoleGame() {
+const holes = document.querySelectorAll('.hole');
+const game = document.querySelector('.game');
+const gameLevel = document.querySelector('.levelValue');
+const scoreBoard = document.querySelector('.score');
+const mole = document.querySelectorAll('.mole');
+const buttonStartGame = document.querySelector('#startGame');
+
+state = {
+  currentLevel: 'easy', 
+  currentScore: 0,
+  lasthole: '',
+  minTime : 200,
+  maxTime : 2000,
+  timeUp : false,
+  score : 0,
+};
+
+
+
+window.addEventListener('load', setInfoLevelScore(gameLevel, state.score));
+buttonStartGame.addEventListener('click', () => startGame(gameLevel, state, holes));
+game.addEventListener('click', (e) => {
+  if (e.target !== e.target.closest('.mole')) return;
+  hit(e, scoreBoard, mole, state.score);
+});
+
+
+/* showResult(gameLevel, state.score);
+toggleMiddleLevel(gameLevel, state.score);
+toggleHardLevel(gameLevel, state.score);
+getInfoLevelScore(gameLevel, state.score); */
+
+
+}
+
+
+
+
 
 function randomTime(min, max) {
   return Math.round(Math.random() * (max - min) + min);
@@ -18,143 +47,172 @@ function randomTime(min, max) {
 function randomHole(holes) {
   const index = Math.floor(Math.random() * holes.length);
   const hole = holes[index];
-  if (hole === lasthole) {
+
+  if (hole === state.lasthole) {
     return randomHole(holes);
   }
-  lasthole = hole;
+
+  state.lasthole = hole;
   return hole;
 }
 
-function appearHidMole() {
+function appearHidMole(state, holes) {
   const time = randomTime(minTime, maxTime);
-  const hole = randomHole(holes);
+  const hole = randomHole(holes, state.lasthole);
+
   hole.classList.add('up');
+
   setTimeout(() => {
     hole.classList.remove('up');
-    if (!timeUp) appearHidMole();
+    if (!timeUp) appearHidMole(state, holes);
   }, time);
 }
 
-function startGame() {
-  getInfoLevelScore();
+function startGame(gameLevel, state, holes) {
+  randomHole(holes);
+  getInfoLevelScore(gameLevel, state.score);
+  appearHidMole(state, holes);
+
   if (score <= 7) {
     startLevelEasy();
   }
+
   if (currentLevel === 'easy' && score > 7) {
     startLevelMiddle();
   }
+
   if (currentLevel === 'middle' && score > 15) {
     startLevelHard();
   }
 }
 
-function toggleMiddleLevel() {
-  if (gameLevel.classList[1] === 'easy' && score > 7) {
+function toggleMiddleLevel(gameLevel, state) {
+  if (gameLevel.classList[1] === 'easy' && state.score > 7) {
     gameLevel.classList.remove('easy');
     gameLevel.classList.add('middle');
   }
 }
 
-function toggleHardLevel() {
-  if (gameLevel.classList[1] === 'middle' && score > 15) {
+function toggleHardLevel(gameLevel, state) {
+  if (gameLevel.classList[1] === 'middle' && state.score > 15) {
     gameLevel.classList.remove('middle');
     gameLevel.classList.add('hard');
   }
 }
 
-function startLevelEasy() {
-  minTime = minTime + 200;
-  maxTime = maxTime - 200;
+function startLevelEasy(state, gameLevel, scoreBoard) {
+  state.minTime += 200;
+  state.maxTime -= 200;
+
   gameLevel.classList.remove('hard');
   gameLevel.classList.remove('middle');
   gameLevel.classList.add('easy');
+
   scoreBoard.textContent = 0;
-  timeUp = false;
-  score = 0;
-  appearHidMole(minTime, maxTime);
+  state.timeUp = false;
+  state.score = 0;
+
+  appearHidMole(state);
+
   setTimeout(() => {
     timeUp = true;
-    setInfoLevelScore();
+    setInfoLevelScore(gameLevel, state.score);
     showResult();
     toggleMiddleLevel();
   }, 12000);
 }
 
-function startLevelMiddle() {
-  maxTime = maxTime - 400;
+function startLevelMiddle(state, gameLevel, scoreBoard) {
+  state.maxTime -= 400;
   gameLevel.classList.add('middle');
   scoreBoard.textContent = currentScore;
-  timeUp = false;
-  score = currentScore;
+  state.timeUp = false;
+  state.score = state.currentScore;
+
   appearHidMole(minTime, maxTime);
+
   setTimeout(() => {
     timeUp = true;
-    setInfoLevelScore();
+    setInfoLevelScore(gameLevel, state.score);
     showResult();
     toggleHardLevel();
   }, 15000);
 }
 
-function startLevelHard() {
-  maxTime = maxTime - 1000;
+function startLevelHard(state, gameLevel, scoreBoard) {
+  state.maxTime -= 1000;
   gameLevel.classList.add('hard');
-  scoreBoard.textContent = currentScore;
+  scoreBoard.textContent = state.currentScore;
   timeUp = false;
-  score = currentScore;
-  appearHidMole(minTime, maxTime);
+  state.score = state.currentScore;
+
+  appearHidMole(state);
+
   setTimeout(() => {
     timeUp = true;
-    setInfoLevelScore();
+    setInfoLevelScore(gameLevel, state.score);
     showResult();
   }, 20000);
 }
 
-function hit(e) {
+function hit(e, scoreBoard, mole, state) {
+  console.log(mole, e.target.parentNode.classList);
   if (!e.isTrusted) return;
-  score++;
-  this.parentNode.classList.remove('up');
-  scoreBoard.textContent = score;
+  state.score++;
+  e.target.parentNode.classList.remove('up');
+  scoreBoard.textContent = state.score;
 }
 
-function setInfoLevelScore() {
+function setInfoLevelScore(gameLevel, state) {
   localStorage.setItem('level', `${gameLevel.classList[1]}`);
-  localStorage.setItem('score', `${score}`);
+  localStorage.setItem('score', `${state.score}`);
 }
 
 function getInfoLevelScore() {
-  currentLevel = localStorage.getItem('level');
-  currentScore = localStorage.getItem('score');
-  if (currentLevel === 'easy' && currentScore <= 7) {
-    score = 0;
-    setInfoLevelScore();
+  state.currentLevel = localStorage.getItem('level');
+  state.currentScore = localStorage.getItem('score');
+  console.log(state.currentLevel, state.currentScore);
+}
+
+function getInfoLevelScore(gameLevel, state) {
+  state.currentLevel = localStorage.getItem('level');
+  state.currentScore = localStorage.getItem('score');
+
+  if (state.currentLevel === 'easy' && state.currentScore <= 7) {
+    state.score = 0;
+    setInfoLevelScore(gameLevel, state.score);
   }
-  if (currentLevel === 'middle' && currentScore <= 15) {
+
+  if (state.currentLevel === 'middle' && state.currentScore <= 15) {
     localStorage.clear();
-    score = 0;
-    setInfoLevelScore();
+    state.score = 0;
+    setInfoLevelScore(gameLevel, state);
   }
-  if (currentLevel === 'hard') {
+
+  if (state.currentLevel === 'hard') {
     localStorage.clear();
-    score = 0;
+    state.score = 0;
     gameLevel.classList.add('easy');
-    setInfoLevelScore();
+    setInfoLevelScore(gameLevel, state);
   }
 }
 
-function showResult() {
-  alert(`Level: ${gameLevel.classList[1]}\n Score: ${score}`);
+function showResult(gameLevel, state) {
+  alert(`Level: ${gameLevel.classList[1]}\n Score: ${state.score}`);
 
-  if (score <= 7) {
+  if (state.score <= 7) {
+    alert('You lose! Try again!');
+  } else {
     alert('You lose! Try again!');
   }
-  if (score > 7 && score <= 15 && `${gameLevel.classList[1]}` === 'middle') {
+
+  /* if (score > 7 && score <= 15 && `${gameLevel.classList[1]}` === 'middle') {
     alert('You lose! Try again!');
-  }
+  } */
+
   if (`${gameLevel.classList[1]}` === 'hard') {
-    alert(`Great! You win! Your score: ${score}`);
+    alert(`Great! You win! Your score: ${state.score}`);
   }
 }
 
-moles.forEach((mole) => mole.addEventListener('click', hit));
-window.addEventListener('load', setInfoLevelScore);
-buttonStartGame.addEventListener('click', startGame);
+initWhackMoleGame();
