@@ -15,6 +15,7 @@ function initWhackMoleGame() {
     maxTime: 2000,
     timeUp: false,
     score: 0,
+    gameTime: 15000,
   };
 
   window.addEventListener('load', setInfoLevelScore(gameLevel, state));
@@ -61,21 +62,23 @@ function startGame(gameLevel, state, holes, scoreBoard) {
   resetValueVariableLevels(gameLevel, state);
 
   if (state.score <= 7) {
-    startLevelEasy(gameLevel, state, scoreBoard, holes);
+    startLevel(gameLevel, state, scoreBoard, holes);
   }
 
   if (state.currentLevel === 'easy' && state.score > 7) {
     state.maxTime = state.maxTime - 300;
-    startLevelMiddle(state, gameLevel, scoreBoard, holes);
+    state.gameTime = state.gameTime + 3000;
+    startLevel(gameLevel, state, scoreBoard, holes);
   }
 
   if (state.currentLevel === 'middle' && state.score > 15) {
     state.maxTime = state.maxTime - 500;
-    startLevelHard(state, gameLevel, scoreBoard, holes);
+    state.gameTime += 3000;
+    startLevel(gameLevel, state, scoreBoard, holes);
   }
 }
 
-function startLevelEasy(gameLevel, state, scoreBoard, holes) {
+function startLevel(gameLevel, state, scoreBoard, holes) {
   scoreBoard.textContent = state.currentScore;
   state.timeUp = false;
   state.score = state.currentScore;
@@ -87,37 +90,7 @@ function startLevelEasy(gameLevel, state, scoreBoard, holes) {
     setInfoLevelScore(gameLevel, state);
     showResult(gameLevel, state);
     toggleLevel(gameLevel, state);
-  }, 12000);
-}
-
-function startLevelMiddle(state, gameLevel, scoreBoard, holes) {
-  scoreBoard.textContent = state.currentScore;
-  state.timeUp = false;
-  state.score = state.currentScore;
-
-  appearHiddenMole(state, holes);
-
-  setTimeout(() => {
-    state.timeUp = true;
-    setInfoLevelScore(gameLevel, state);
-    showResult(gameLevel, state);
-    toggleLevel(gameLevel, state);
-  }, 15000);
-}
-
-function startLevelHard(state, gameLevel, scoreBoard, holes) {
-  scoreBoard.textContent = state.currentScore;
-  state.timeUp = false;
-  state.score = state.currentScore;
-
-  appearHiddenMole(state, holes);
-
-  setTimeout(() => {
-    state.timeUp = true;
-    setInfoLevelScore(gameLevel, state);
-    showResult(gameLevel, state);
-    toggleLevel(gameLevel, state);
-  }, 20000);
+  }, state.gameTime);
 }
 
 function hit(e, scoreBoard, state) {
@@ -169,6 +142,7 @@ function resetValueVariableLevels(gameLevel, state) {
 }
 
 function assignInitialValues(gameLevel, state) {
+  state.gameTime = 15000;
   state.score = 0;
   state.currentScore = 0;
   state.minTime = 200;
