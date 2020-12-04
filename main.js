@@ -16,6 +16,8 @@ function initWhackMoleGame() {
     timeUp: false,
     score: 0,
     gameTime: 15000,
+    levelUpMiddle: 10,
+    LevelUpHard: 20,
   };
 
   window.addEventListener('load', setInfoLevelScore(gameLevel, state));
@@ -61,17 +63,17 @@ function startGame(gameLevel, state, holes, scoreBoard) {
   getInfoLevelScore(state.currentLevel, state.currentScore);
   resetValueVariableLevels(gameLevel, state);
 
-  if (state.score <= 7) {
+  if (state.score <= state.levelUpMiddle) {
     startLevel(gameLevel, state, scoreBoard, holes);
   }
 
-  if (state.currentLevel === 'easy' && state.score > 7) {
+  if (state.currentLevel === 'easy' && state.score > state.levelUpMiddle) {
     state.maxTime = state.maxTime - 300;
     state.gameTime = state.gameTime + 3000;
     startLevel(gameLevel, state, scoreBoard, holes);
   }
 
-  if (state.currentLevel === 'middle' && state.score > 15) {
+  if (state.currentLevel === 'middle' && state.score > state.LevelUpHard) {
     state.maxTime = state.maxTime - 500;
     state.gameTime += 3000;
     startLevel(gameLevel, state, scoreBoard, holes);
@@ -113,10 +115,10 @@ function getInfoLevelScore() {
 function toggleLevel(gameLevel, state) {
   let level = gameLevel.classList;
 
-  if (level[1] === 'easy' && state.score > 7) {
+  if (level[1] === 'easy' && state.score > state.levelUpMiddle) {
     level.remove('easy');
     level.add('middle');
-  } else if (level[1] === 'middle' && state.score > 15) {
+  } else if (level[1] === 'middle' && state.score > state.LevelUpHard) {
     level.remove('middle');
     level.add('hard');
   } else {
@@ -127,12 +129,17 @@ function toggleLevel(gameLevel, state) {
 }
 
 function resetValueVariableLevels(gameLevel, state) {
-
-  if (state.currentLevel === 'easy' && state.currentScore <= 7) {
+  if (
+    state.currentLevel === 'easy' &&
+    state.currentScore <= state.levelUpMiddle
+  ) {
     assignInitialValues(gameLevel, state);
   }
 
-  if (state.currentLevel === 'middle' && state.currentScore <= 15) {
+  if (
+    state.currentLevel === 'middle' &&
+    state.currentScore <= state.LevelUpHard
+  ) {
     assignInitialValues(gameLevel, state);
   }
 
@@ -153,13 +160,13 @@ function assignInitialValues(gameLevel, state) {
 function showResult(gameLevel, state) {
   alert(`Level: ${gameLevel.classList[1]}\n Score: ${state.score}`);
 
-  if (state.score <= 7) {
+  if (state.score <= state.levelUpMiddle) {
     alert('You lose! Try again!');
   }
 
   if (
-    state.score > 7 &&
-    state.score <= 15 &&
+    state.score > state.levelUpMiddle &&
+    state.score <= state.LevelUpHard &&
     `${gameLevel.classList[1]}` === 'middle'
   ) {
     alert('You lose! Try again!');
