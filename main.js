@@ -58,7 +58,7 @@ function appearHiddenMole(state, holes) {
 
 function startGame(gameLevel, state, holes, scoreBoard) {
   getInfoLevelScore(state.currentLevel, state.currentScore);
-  resetSettingsLevelEasy(gameLevel, state);
+  resetValueVariableLevels(gameLevel, state);
 
   if (state.score <= 7) {
     startLevelEasy(gameLevel, state, scoreBoard, holes);
@@ -153,7 +153,7 @@ function toggleLevel(gameLevel, state) {
   }
 }
 
-function resetSettingsLevelEasy(gameLevel, state) {
+function resetValueVariableLevels(gameLevel, state) {
 
   if (state.currentLevel === 'easy' && state.currentScore <= 7) {
     assignInitialValues(gameLevel, state);
