@@ -47,7 +47,6 @@ function getRandomHole(holes) {
 }
 
 function appearHiddenMole(state, holes) {
-  console.log(state.minTime, state.maxTime, state.timeUp);
   const time = getRandomTime(state.minTime, state.maxTime);
   const hole = getRandomHole(holes, state.lasthole);
 
