@@ -58,6 +58,7 @@ function appearHiddenMole(state, holes) {
 function startGame(gameLevel, state, holes, scoreBoard) {
   getInfoLevelScore(state.currentLevel, state.currentScore);
   resetSettingsLevelEasy(gameLevel, state);
+  
   if (state.score <= 7) {
     startLevelEasy(gameLevel, state, scoreBoard, holes);
   }
@@ -73,11 +74,6 @@ function startGame(gameLevel, state, holes, scoreBoard) {
 
 function startLevelEasy(gameLevel, state, scoreBoard, holes) {
   
-  if (state.currentLevel!==('easy')){
-  gameLevel.classList.remove('hard');
-  gameLevel.classList.remove('middle');
-  gameLevel.classList.add('easy');
-  }
   scoreBoard.textContent = 0;
   state.timeUp = false;
   state.score = 0;
@@ -85,15 +81,15 @@ function startLevelEasy(gameLevel, state, scoreBoard, holes) {
   appearHiddenMole(state, holes);
 
   setTimeout(() => {
-    console.log('через 12 с');
     state.timeUp = true;
     setInfoLevelScore(gameLevel, state);
     showResult(gameLevel, state);
-    toggleMiddleLevel(gameLevel, state);
+    toggleLevel(gameLevel, state);
   }, 12000);
 }
 
 function startLevelMiddle(state, gameLevel, scoreBoard, holes) {
+
   state.maxTime = state.maxTime - 300;
   scoreBoard.textContent = state.currentScore;
   state.timeUp = false;
@@ -105,11 +101,12 @@ function startLevelMiddle(state, gameLevel, scoreBoard, holes) {
     state.timeUp = true;
     setInfoLevelScore(gameLevel, state);
     showResult(gameLevel, state);
-    toggleHardLevel(gameLevel, state);
+    toggleLevel(gameLevel, state);
   }, 15000);
 }
 
 function startLevelHard(state, gameLevel, scoreBoard, holes) {
+
   state.maxTime = state.maxTime - 500;
   scoreBoard.textContent = state.currentScore;
   state.timeUp = false;
@@ -121,6 +118,7 @@ function startLevelHard(state, gameLevel, scoreBoard, holes) {
     state.timeUp = true;
     setInfoLevelScore(gameLevel, state);
     showResult(gameLevel, state);
+    toggleLevel(gameLevel, state);
   }, 20000);
 }
 
@@ -141,18 +139,20 @@ function getInfoLevelScore() {
   state.currentScore = localStorage.getItem('score');
 }
 
-function toggleMiddleLevel(gameLevel, state) {
-  if (gameLevel.classList[1] === 'easy' && state.score > 7) {
-    gameLevel.classList.remove('easy');
-    gameLevel.classList.add('middle');
-  }
-}
+function toggleLevel(gameLevel, state){
+  let level = gameLevel.classList;
 
-function toggleHardLevel(gameLevel, state) {
-  if (gameLevel.classList[1] === 'middle' && state.score > 15) {
-    gameLevel.classList.remove('middle');
-    gameLevel.classList.add('hard');
-  }
+  if (level[1] === 'easy' && state.score > 7) {
+    level.remove('easy');
+    level.add('middle');
+  } else if (level[1] === 'middle' && state.score > 15) {
+    level.remove('middle');
+    level.add('hard');
+  } else {
+    level.remove('hard');
+    level.remove('middle');
+    level.add('easy');
+    }
 }
 
 function resetSettingsLevelEasy(gameLevel, state) {
@@ -163,15 +163,14 @@ function resetSettingsLevelEasy(gameLevel, state) {
   }
 
   if (state.currentLevel === 'middle' && state.currentScore <= 15) {
-    localStorage.clear();
     state.score = 0;
     setInfoLevelScore(gameLevel, state);
   }
 
   if (state.currentLevel === 'hard') {
-    localStorage.clear();
     state.score = 0;
-    gameLevel.classList.add('easy');
+    state.minTime = 200;
+    state.maxTime = 2000;
     setInfoLevelScore(gameLevel, state);
   }
 } 
@@ -181,13 +180,11 @@ function showResult(gameLevel, state) {
 
   if (state.score <= 7) {
     alert('You lose! Try again!');
-  } /* else {
-    alert('You lose! Try again!');
-  } */
+  }
 
   if (state.score > 7 && state.score <= 15 && `${gameLevel.classList[1]}` === 'middle') {
     alert('You lose! Try again!');
-  }
+  } 
 
   if (`${gameLevel.classList[1]}` === 'hard') {
     alert(`Great! You win! Your score: ${state.score}`);
