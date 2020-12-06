@@ -1,5 +1,27 @@
 initWhackMoleGame();
 
+const MIN_MOLE_JUMP_IN_DELAY = 200;
+const MAX_MOLE_JUMP_IN_DELAY = 2000;
+
+const GAME_DURATION = 15000;
+
+const LEVELS = {
+  easy: {
+    name: 'easy', 
+    lowThreshold: 0,
+  },
+  middle: {
+    name: 'middle',
+    lowThreshold: 10,
+  },
+  hard: {
+    name: 'hard',
+    lowThreshold: 20,
+  }
+};
+
+
+
 function initWhackMoleGame() {
   const holes = document.querySelectorAll('.hole');
   const game = document.querySelector('.game');
@@ -8,16 +30,11 @@ function initWhackMoleGame() {
   const buttonStartGame = document.querySelector('#startGame');
 
   state = {
-    currentLevel: 'easy',
+    currentLevel: LEVELS.easy.name,
     currentScore: 0,
     lasthole: '',
-    minTime: 200,
-    maxTime: 2000,
     timeUp: false,
     score: 0,
-    gameTime: 15000,
-    levelUpMiddle: 10,
-    LevelUpHard: 20,
   };
 
   window.addEventListener('load', setInfoLevelScore(gameLevel, state));
