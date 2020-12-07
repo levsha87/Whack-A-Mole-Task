@@ -1,9 +1,7 @@
-initWhackMoleGame();
-
 const MIN_MOLE_JUMP_IN_DELAY = 200;
 const MAX_MOLE_JUMP_IN_DELAY = 2000;
 
-const GAME_DURATION = 15000;
+const GAME_DURATION = 10000;
 
 const LEVELS = {
   easy: {
@@ -12,15 +10,13 @@ const LEVELS = {
   },
   middle: {
     name: 'middle',
-    lowThreshold: 10,
+    lowThreshold: 5,
   },
   hard: {
     name: 'hard',
-    lowThreshold: 20,
+    lowThreshold: 10,
   }
 };
-
-
 
 function initWhackMoleGame() {
   const holes = document.querySelectorAll('.hole');
@@ -43,8 +39,7 @@ function initWhackMoleGame() {
   });
 
   buttonStartGame.addEventListener('click', () => {
-    changeGameLevel(state, holes, scoreBoard, gameLevel);
-    console.log(state, holes, scoreBoard);
+    startGame(state, scoreBoard, holes, gameLevel);
   });
 
   game.addEventListener('click', (e) => {
@@ -83,49 +78,30 @@ function appearHiddenMole(state, holes) {
   }, time);
 }
 
-function changeGameLevel(state, holes, scoreBoard, gameLevel) {
-  getInfoLevelScore(state.currentLevel, state.currentScore);
-
-  if (state.score <= LEVELS.middle.lowThreshold) {
-    startGame(state, scoreBoard, holes, gameLevel);
-  } 
-
-  if (state.currentLevel === 'easy' && state.score > LEVELS.middle.lowThreshold) {
-    state.currentLevel = LEVELS.middle.name; 
-    startGame(state, scoreBoard, holes, gameLevel);
-    
-  } 
-
-  if (state.currentLevel === 'middle' && state.score > LEVELS.hard.lowThreshold) {
-    state.currentLevel = LEVELS.hard.name;
-    startGame(state, scoreBoard, holes, gameLevel);
-  } 
-}
-
 function toggleLevel(gameLevel, state) {
   getInfoLevelScore(state.currentLevel, state.currentScore);
 
   if (state.currentLevel === 'easy' && state.currentScore > LEVELS.middle.lowThreshold) {
     gameLevel.classList.remove(LEVELS.easy.name);
     gameLevel.classList.add(LEVELS.middle.name);
-    
-  } else if (state.currentLevel === 'middle' && state.score > LEVELS.hard.lowThreshold) {
+    state.currentLevel = LEVELS.middle.name; 
+  } else if (state.currentLevel === 'middle' && state.currentScore > LEVELS.hard.lowThreshold) {
     gameLevel.classList.remove(LEVELS.middle.name);
     gameLevel.classList.add(LEVELS.hard.name);
-    
-    
-  } else if(state.currentLevel === 'hard'){
-    state.score = 0;
-    gameLevel.classList.remove(LEVELS.hard.name);
-    gameLevel.classList.add(LEVELS.easy.name);
-    
+    state.currentLevel = LEVELS.hard.name;    
   } else {
-    state.score = 0; 
-    
-  } 
+    gameLevel.classList.remove(LEVELS.middle.name);
+    gameLevel.classList.remove(LEVELS.hard.name);
+    gameLevel.classList.add(LEVELS.easy.name); 
+    state.currentLevel = LEVELS.easy.name;
+    state.score = 0;
+    state.currentScore = 0;
+  }
 } 
 
 function startGame(state, scoreBoard, holes, gameLevel) {
+  toggleLevel(gameLevel, state);
+  setInfoLevelScore(state);
   scoreBoard.textContent = state.currentScore;
   state.timeUp = false;
   state.score = state.currentScore;
@@ -136,7 +112,6 @@ function startGame(state, scoreBoard, holes, gameLevel) {
     state.timeUp = true;
     setInfoLevelScore(state);
     showResult(state);
-    toggleLevel(gameLevel, state);
   }, GAME_DURATION);
 }
 
