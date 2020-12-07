@@ -37,15 +37,23 @@ function initWhackMoleGame() {
     score: 0,
   };
 
-  window.addEventListener('load', setInfoLevelScore(gameLevel, state));
-  buttonStartGame.addEventListener('click', () =>
-    startGame(gameLevel, state, holes, scoreBoard)
-  );
+  window.addEventListener('load', () => {
+    setInfoLevelScore(state);
+    gameLevel.classList.add(LEVELS.easy.name);
+  });
+
+  buttonStartGame.addEventListener('click', () => {
+    changeGameLevel(state, holes, scoreBoard, gameLevel);
+    console.log(state, holes, scoreBoard);
+  });
+
   game.addEventListener('click', (e) => {
     if (e.target !== e.target.closest('.mole')) return;
     hit(e, scoreBoard, state);
   });
 }
+
+initWhackMoleGame();
 
 function getRandomTime(min, max) {
   return Math.round(Math.random() * (max - min) + min);
@@ -64,7 +72,7 @@ function getRandomHole(holes) {
 }
 
 function appearHiddenMole(state, holes) {
-  const time = getRandomTime(state.minTime, state.maxTime);
+  const time = getRandomTime(MIN_MOLE_JUMP_IN_DELAY, MAX_MOLE_JUMP_IN_DELAY);
   const hole = getRandomHole(holes, state.lasthole);
 
   hole.classList.add('up');
@@ -75,28 +83,49 @@ function appearHiddenMole(state, holes) {
   }, time);
 }
 
-function startGame(gameLevel, state, holes, scoreBoard) {
+function changeGameLevel(state, holes, scoreBoard, gameLevel) {
   getInfoLevelScore(state.currentLevel, state.currentScore);
-  resetValueVariableLevels(gameLevel, state);
 
-  if (state.score <= state.levelUpMiddle) {
-    startLevel(gameLevel, state, scoreBoard, holes);
-  }
+  if (state.score <= LEVELS.middle.lowThreshold) {
+    startGame(state, scoreBoard, holes, gameLevel);
+  } 
 
-  if (state.currentLevel === 'easy' && state.score > state.levelUpMiddle) {
-    state.maxTime = state.maxTime - 300;
-    state.gameTime = state.gameTime + 3000;
-    startLevel(gameLevel, state, scoreBoard, holes);
-  }
+  if (state.currentLevel === 'easy' && state.score > LEVELS.middle.lowThreshold) {
+    state.currentLevel = LEVELS.middle.name; 
+    startGame(state, scoreBoard, holes, gameLevel);
+    
+  } 
 
-  if (state.currentLevel === 'middle' && state.score > state.LevelUpHard) {
-    state.maxTime = state.maxTime - 500;
-    state.gameTime += 3000;
-    startLevel(gameLevel, state, scoreBoard, holes);
-  }
+  if (state.currentLevel === 'middle' && state.score > LEVELS.hard.lowThreshold) {
+    state.currentLevel = LEVELS.hard.name;
+    startGame(state, scoreBoard, holes, gameLevel);
+  } 
 }
 
-function startLevel(gameLevel, state, scoreBoard, holes) {
+function toggleLevel(gameLevel, state) {
+  getInfoLevelScore(state.currentLevel, state.currentScore);
+
+  if (state.currentLevel === 'easy' && state.currentScore > LEVELS.middle.lowThreshold) {
+    gameLevel.classList.remove(LEVELS.easy.name);
+    gameLevel.classList.add(LEVELS.middle.name);
+    
+  } else if (state.currentLevel === 'middle' && state.score > LEVELS.hard.lowThreshold) {
+    gameLevel.classList.remove(LEVELS.middle.name);
+    gameLevel.classList.add(LEVELS.hard.name);
+    
+    
+  } else if(state.currentLevel === 'hard'){
+    state.score = 0;
+    gameLevel.classList.remove(LEVELS.hard.name);
+    gameLevel.classList.add(LEVELS.easy.name);
+    
+  } else {
+    state.score = 0; 
+    
+  } 
+} 
+
+function startGame(state, scoreBoard, holes, gameLevel) {
   scoreBoard.textContent = state.currentScore;
   state.timeUp = false;
   state.score = state.currentScore;
@@ -105,10 +134,10 @@ function startLevel(gameLevel, state, scoreBoard, holes) {
 
   setTimeout(() => {
     state.timeUp = true;
-    setInfoLevelScore(gameLevel, state);
-    showResult(gameLevel, state);
+    setInfoLevelScore(state);
+    showResult(state);
     toggleLevel(gameLevel, state);
-  }, state.gameTime);
+  }, GAME_DURATION);
 }
 
 function hit(e, scoreBoard, state) {
@@ -118,8 +147,8 @@ function hit(e, scoreBoard, state) {
   scoreBoard.textContent = state.score;
 }
 
-function setInfoLevelScore(gameLevel, state) {
-  localStorage.setItem('level', `${gameLevel.classList[1]}`);
+function setInfoLevelScore(state) {
+  localStorage.setItem('level', `${state.currentLevel}`);
   localStorage.setItem('score', `${state.score}`);
 }
 
@@ -128,53 +157,8 @@ function getInfoLevelScore() {
   state.currentScore = localStorage.getItem('score');
 }
 
-function toggleLevel(gameLevel, state) {
-  let level = gameLevel.classList;
-
-  if (level[1] === 'easy' && state.score > state.levelUpMiddle) {
-    level.remove('easy');
-    level.add('middle');
-  } else if (level[1] === 'middle' && state.score > state.LevelUpHard) {
-    level.remove('middle');
-    level.add('hard');
-  } else {
-    level.remove('hard');
-    level.remove('middle');
-    level.add('easy');
-  }
-}
-
-function resetValueVariableLevels(gameLevel, state) {
-  if (
-    state.currentLevel === 'easy' &&
-    state.currentScore <= state.levelUpMiddle
-  ) {
-    assignInitialValues(gameLevel, state);
-  }
-
-  if (
-    state.currentLevel === 'middle' &&
-    state.currentScore <= state.LevelUpHard
-  ) {
-    assignInitialValues(gameLevel, state);
-  }
-
-  if (state.currentLevel === 'hard') {
-    assignInitialValues(gameLevel, state);
-  }
-}
-
-function assignInitialValues(gameLevel, state) {
-  state.gameTime = 15000;
-  state.score = 0;
-  state.currentScore = 0;
-  state.minTime = 200;
-  state.maxTime = 2000;
-  setInfoLevelScore(gameLevel, state);
-}
-
-function showResult(gameLevel, state) {
-  alert(`Level: ${gameLevel.classList[1]}\n Score: ${state.score}`);
+function showResult(state) {
+  alert(`Level: ${state.currentLevel}\n Score: ${state.score}`);
 
   if (state.score <= state.levelUpMiddle) {
     alert('You lose! Try again!');
@@ -183,12 +167,12 @@ function showResult(gameLevel, state) {
   if (
     state.score > state.levelUpMiddle &&
     state.score <= state.LevelUpHard &&
-    `${gameLevel.classList[1]}` === 'middle'
+    `${state.currentLevel}` === 'middle'
   ) {
     alert('You lose! Try again!');
   }
 
-  if (`${gameLevel.classList[1]}` === 'hard') {
+  if (`${state.currentLevel}` === 'hard') {
     alert(`Great! You win! Your score: ${state.score}`);
   }
 }
