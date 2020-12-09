@@ -26,7 +26,7 @@ const LEVELS = {
   },
   hard: {
     name: 'hard',
-    lowThreshold: 25,
+    lowThreshold: 35,
   },
 };
 
