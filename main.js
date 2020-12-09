@@ -129,17 +129,8 @@ function startGame(state, scoreBoard, holes, gameLevel) {
 function toggleLevel(gameLevel, state) {
   getInfoLevelScore();
   setMOLE_JUMP_IN_DELAY(state);
-
-  if (checkConditionForLevelGame(state) === 'next_middle') {
-    deleteGameLevelClass(gameLevel);
-    addGameLevelClass(gameLevel, state);
-  } else if (checkConditionForLevelGame(state) === 'next_hard') {
-    deleteGameLevelClass(gameLevel);
-    addGameLevelClass(gameLevel, state);
-  } else {
-    deleteGameLevelClass(gameLevel);
-    addGameLevelClass(gameLevel, state);
-  }
+  deleteGameLevelClass(gameLevel);
+  addGameLevelClass(gameLevel, state);
 }
 
 function checkConditionForLevelGame(state) {
