@@ -90,8 +90,8 @@ function getRandomHole(holes) {
 
 function appearHiddenMole(state, holes) {
   const time = getRandomTime(
-    setMOLE_JUMP_IN_DELAY(state).minTime,
-    setMOLE_JUMP_IN_DELAY(state).maxTime
+    setMoleJumpInDelay(state).minTime,
+    setMoleJumpInDelay(state).maxTime
   );
   const hole = getRandomHole(holes, state.lasthole);
 
@@ -128,7 +128,7 @@ function startGame(state, scoreBoard, holes, gameLevel) {
 
 function toggleLevel(gameLevel, state) {
   getInfoLevelScore();
-  setMOLE_JUMP_IN_DELAY(state);
+  setMoleJumpInDelay(state);
   deleteGameLevelClass(gameLevel);
   updateGameLevelClass(gameLevel, state);
 }
@@ -173,10 +173,10 @@ function updateGameLevelClass(gameLevel, state) {
   }
 }
 
-function setMOLE_JUMP_IN_DELAY(state) {
-  if (state.currentLevel === 'middle') {
+function setMoleJumpInDelay(state) {
+  if (state.currentLevel === LEVELS.middle.name) {
     return MOLE_JUMP_IN_DELAY.middle;
-  } else if (state.currentLevel === 'hard') {
+  } else if (state.currentLevel === LEVELS.hard.name) {
     return MOLE_JUMP_IN_DELAY.hard;
   } else {
     return MOLE_JUMP_IN_DELAY.easy;
@@ -186,11 +186,11 @@ function setMOLE_JUMP_IN_DELAY(state) {
 function showResult(state) {
   getInfoLevelScore();
   if (
-    getCurrentLevelGame(state) === 'next_middle' ||
-    getCurrentLevelGame(state) === 'next_hard'
+    getCurrentLevelGame(state) === LEVELS.middle.name ||
+    getCurrentLevelGame(state) === LEVELS.hard.name
   ) {
     showPositiveResult(state);
-  } else if (state.currentLevel === 'hard') {
+  } else if (state.currentLevel === LEVELS.hard.name) {
     showFinallyResult(state);
   } else {
     showNegativeResult(state);
