@@ -133,19 +133,19 @@ function toggleLevel(gameLevel, state) {
   addGameLevelClass(gameLevel, state);
 }
 
-function checkConditionForLevelGame(state) {
+function getCurrentLevelGame(state) {
   if (
     state.currentLevel === LEVELS.easy.name &&
     state.currentScore > LEVELS.middle.lowThreshold
   ) {
-    return 'next_middle';
+    return LEVELS.middle.name;
   }
 
   if (
     state.currentLevel === LEVELS.middle.name &&
     state.currentScore > LEVELS.hard.lowThreshold
   ) {
-    return 'next_hard';
+    return LEVELS.hard.name;
   }
 }
 
@@ -158,10 +158,10 @@ function deleteGameLevelClass(gameLevel) {
 }
 
 function addGameLevelClass(gameLevel, state) {
-  if (checkConditionForLevelGame(state) === 'next_middle') {
+  if (getCurrentLevelGame(state) === 'next_middle') {
     gameLevel.classList.add(LEVELS.middle.name);
     state.currentLevel = LEVELS.middle.name;
-  } else if (checkConditionForLevelGame(state) === 'next_hard') {
+  } else if (getCurrentLevelGame(state) === 'next_hard') {
     gameLevel.classList.add(LEVELS.hard.name);
     state.currentLevel = LEVELS.hard.name;
   } else {
@@ -186,8 +186,8 @@ function setMOLE_JUMP_IN_DELAY(state) {
 function showResult(state) {
   getInfoLevelScore();
   if (
-    checkConditionForLevelGame(state) === 'next_middle' ||
-    checkConditionForLevelGame(state) === 'next_hard'
+    getCurrentLevelGame(state) === 'next_middle' ||
+    getCurrentLevelGame(state) === 'next_hard'
   ) {
     showPositiveResult(state);
   } else if (state.currentLevel === 'hard') {
