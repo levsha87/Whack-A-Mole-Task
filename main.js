@@ -1,7 +1,19 @@
-const MIN_MOLE_JUMP_IN_DELAY = 400;
-const MAX_MOLE_JUMP_IN_DELAY = 1600;
-
 const GAME_DURATION = 20000;
+
+const MOLE_JUMP_IN_DELAY = {
+  easy: {
+    minTime: 800,
+    maxTime: 1600,
+  },
+  middle: {
+    minTime: 600,
+    maxTime: 800,
+  },
+  hard: {
+    minTime: 400,
+    maxTime: 600,
+  },
+};
 
 const LEVELS = {
   easy: {
@@ -10,11 +22,11 @@ const LEVELS = {
   },
   middle: {
     name: 'middle',
-    lowThreshold: 12,
+    lowThreshold: 15,
   },
   hard: {
     name: 'hard',
-    lowThreshold: 30,
+    lowThreshold: 25,
   },
 };
 
@@ -31,8 +43,6 @@ function initWhackMoleGame() {
     lasthole: '',
     timeUp: false,
     score: 0,
-    minTime: MIN_MOLE_JUMP_IN_DELAY,
-    maxTime: MAX_MOLE_JUMP_IN_DELAY,
   };
 
   window.addEventListener('load', () => {
@@ -79,7 +89,10 @@ function getRandomHole(holes) {
 }
 
 function appearHiddenMole(state, holes) {
-  const time = getRandomTime(state.minTime, state.maxTime);
+  const time = getRandomTime(
+    setMOLE_JUMP_IN_DELAY(state).minTime,
+    setMOLE_JUMP_IN_DELAY(state).maxTime
+  );
   const hole = getRandomHole(holes, state.lasthole);
 
   hole.classList.add('up');
@@ -99,7 +112,7 @@ function hit(e, scoreBoard, state) {
 
 function startGame(state, scoreBoard, holes, gameLevel) {
   toggleLevel(gameLevel, state);
-  setInfoLevelScore(state);
+
   scoreBoard.textContent = state.currentScore;
   state.timeUp = false;
   state.score = state.currentScore;
@@ -114,44 +127,76 @@ function startGame(state, scoreBoard, holes, gameLevel) {
 }
 
 function toggleLevel(gameLevel, state) {
-  getInfoLevelScore(state.currentLevel, state.currentScore);
+  getInfoLevelScore();
+  setMOLE_JUMP_IN_DELAY(state);
 
+  if (checkConditionForLevelGame(state) === 'next_middle') {
+    deleteGameLevelClass(gameLevel);
+    addGameLevelClass(gameLevel, state);
+  } else if (checkConditionForLevelGame(state) === 'next_hard') {
+    deleteGameLevelClass(gameLevel);
+    addGameLevelClass(gameLevel, state);
+  } else {
+    deleteGameLevelClass(gameLevel);
+    addGameLevelClass(gameLevel, state);
+  }
+}
+
+function checkConditionForLevelGame(state) {
   if (
-    state.currentLevel === 'easy' &&
+    state.currentLevel === LEVELS.easy.name &&
     state.currentScore > LEVELS.middle.lowThreshold
   ) {
-    gameLevel.classList.remove(LEVELS.easy.name);
-    gameLevel.classList.add(LEVELS.middle.name);
-    state.currentLevel = LEVELS.middle.name;
-    state.minTime = MIN_MOLE_JUMP_IN_DELAY - 100;
-    state.maxTime = MAX_MOLE_JUMP_IN_DELAY - 400;
-  } else if (
-    state.currentLevel === 'middle' &&
+    return 'next_middle';
+  }
+
+  if (
+    state.currentLevel === LEVELS.middle.name &&
     state.currentScore > LEVELS.hard.lowThreshold
   ) {
-    gameLevel.classList.remove(LEVELS.middle.name);
+    return 'next_hard';
+  }
+}
+
+function deleteGameLevelClass(gameLevel) {
+  gameLevel.classList.remove(
+    LEVELS.easy.name,
+    LEVELS.middle.name,
+    LEVELS.hard.name
+  );
+}
+
+function addGameLevelClass(gameLevel, state) {
+  if (checkConditionForLevelGame(state) === 'next_middle') {
+    gameLevel.classList.add(LEVELS.middle.name);
+    state.currentLevel = LEVELS.middle.name;
+  } else if (checkConditionForLevelGame(state) === 'next_hard') {
     gameLevel.classList.add(LEVELS.hard.name);
     state.currentLevel = LEVELS.hard.name;
-    state.maxTime = MAX_MOLE_JUMP_IN_DELAY - 800;
   } else {
-    gameLevel.classList.remove(LEVELS.middle.name);
-    gameLevel.classList.remove(LEVELS.hard.name);
     gameLevel.classList.add(LEVELS.easy.name);
     state.currentLevel = LEVELS.easy.name;
     state.score = 0;
     state.currentScore = 0;
-    state.minTime = MIN_MOLE_JUMP_IN_DELAY;
-    state.maxTime = MAX_MOLE_JUMP_IN_DELAY;
+    setInfoLevelScore(state);
+  }
+}
+
+function setMOLE_JUMP_IN_DELAY(state) {
+  if (state.currentLevel === 'middle') {
+    return MOLE_JUMP_IN_DELAY.middle;
+  } else if (state.currentLevel === 'hard') {
+    return MOLE_JUMP_IN_DELAY.hard;
+  } else {
+    return MOLE_JUMP_IN_DELAY.easy;
   }
 }
 
 function showResult(state) {
   getInfoLevelScore();
   if (
-    (state.currentLevel === 'easy' &&
-      state.currentScore > LEVELS.middle.lowThreshold) ||
-    (state.currentLevel === 'middle' &&
-      state.currentScore > LEVELS.hard.lowThreshold)
+    checkConditionForLevelGame(state) === 'next_middle' ||
+    checkConditionForLevelGame(state) === 'next_hard'
   ) {
     showPositiveResult(state);
   } else if (state.currentLevel === 'hard') {
