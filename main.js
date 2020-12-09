@@ -130,7 +130,7 @@ function toggleLevel(gameLevel, state) {
   getInfoLevelScore();
   setMOLE_JUMP_IN_DELAY(state);
   deleteGameLevelClass(gameLevel);
-  addGameLevelClass(gameLevel, state);
+  updateGameLevelClass(gameLevel, state);
 }
 
 function getCurrentLevelGame(state) {
@@ -157,11 +157,11 @@ function deleteGameLevelClass(gameLevel) {
   );
 }
 
-function addGameLevelClass(gameLevel, state) {
-  if (getCurrentLevelGame(state) === 'next_middle') {
+function updateGameLevelClass(gameLevel, state) {
+  if (getCurrentLevelGame(state) === LEVELS.middle.name) {
     gameLevel.classList.add(LEVELS.middle.name);
     state.currentLevel = LEVELS.middle.name;
-  } else if (getCurrentLevelGame(state) === 'next_hard') {
+  } else if (getCurrentLevelGame(state) === LEVELS.hard.name) {
     gameLevel.classList.add(LEVELS.hard.name);
     state.currentLevel = LEVELS.hard.name;
   } else {
